@@ -37,7 +37,7 @@ def launch_in_desktop(num: int):
         profile_name = f"Profile {num}"
         subprocess.check_call(["xdotool", "set_desktop", str(num)])
         subprocess.Popen([
-            "chromium", "--start-fullscreen", "--profile-directory", f"'{profile_name}'"
+            "chromium", "--start-fullscreen", f"--profile-directory='{profile_name}'"
         ])
     except subprocess.CalledProcessError as e:
         raise Exception(f"Make sure you have chrome and xdotool installed and "
