@@ -5,12 +5,12 @@ Launch Chrome profiles in different workspaces
 
 This script assumes that:
 - you have xdotool* installed
-- you have installed Chrome or Chromium** web browser
+- you have installed Chromium** web browser
 - you have NUM_OF_DESKTOPS chrome profiles setup
 - you have set up NUM_OF_DESKTOPS workspaces
 
 * sudo apt update && sudo apt install -y xdotool
-** sudo apt update && sudo apt install -y chromium
+** installed by default on raspbian
 """
 
 import os
@@ -37,7 +37,7 @@ def launch_in_desktop(num: int):
         profile_name = f"Profile {num}"
         subprocess.check_call(["xdotool", "set_desktop", str(num)])
         subprocess.check_call([
-            "chrome", "--start-fullscreen", "--profile-directory", f"'{profile_name}'"
+            "chromium", "--start-fullscreen", "--profile-directory", f"'{profile_name}'"
         ])
     except subprocess.CalledProcessError as e:
         raise Exception(f"Make sure you have chrome and xdotool installed and "
