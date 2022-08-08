@@ -18,28 +18,22 @@ import platform
 import subprocess
 from tabnanny import check
 import time
+import logging
+logging.basicConfig(filename='/home/pi/start_dashboards.log', encoding='utf-8', level=logging.DEBUG)
 
 
-WAIT_BETWEEN_SCREENS_IN_SECONDS = os.environ.get("WAIT_BETWEEN_SCREENS_IN_SECONDS", 5)
+WAIT_BETWEEN_LAUNCHES_IN_SECONDS = os.environ.get("WAIT_BETWEEN_LAUNCHES_IN_SECONDS", 1)
 NUM_OF_DESKTOPS = os.environ.get("NUM_OF_DESKTOPS", 9)
-
-
-def change_num_desktops(num):
-    try:
-        subprocess.check_call(["xdotool", "set_num_desktops", str(num)])
-    except subprocess.CalledProcessError as e:
-        raise Exception(f"Make sure you have xdotool installed and {NUM_OF_DESKTOPS} "
-                        f"workspaces configured") from e
 
 
 def launch_in_desktop(num: int):
     try:
-        profile_name = f"Profile {num}"
-        subprocess.check_call(["xdotool", "set_desktop", str(num)])
+        profile_name = f"Profile{num}"
         subprocess.Popen([
-            "chromium", "--start-fullscreen", f"--profile-directory='{profile_name}'"
+            "chromium-browser", "--start-fullscreen", "--start-maximized", "--noerrdialogs", f"--profile-directory={profile_name}", "https://dashboardv2.fabapps.io"
         ])
     except subprocess.CalledProcessError as e:
+        logging.error(e)
         raise Exception(f"Make sure you have chrome and xdotool installed and "
                         f"{NUM_OF_DESKTOPS} workspaces and profiles configured") from e
 
@@ -47,20 +41,25 @@ def launch_in_desktop(num: int):
 def check_linux():
     if platform.system().lower() != "linux":
         raise Exception("This script is meant to run on Linux.")
+    logging.debug("Linux OS found")
 
 
 def main():
-    check_linux()
-    change_num_desktops(NUM_OF_DESKTOPS)
+    logging.debug("Starting")
+    try:
+        check_linux()
+    except Exception as e:
+        logging.error(e)
 
     desktop_number = 1
     while True:
-        print(f"Launching {desktop_number}")
+        logging.debug(f"Launching {desktop_number}")
         launch_in_desktop(desktop_number)
         desktop_number += 1
         if desktop_number > NUM_OF_DESKTOPS:
             break
-        time.sleep(WAIT_BETWEEN_SCREENS_IN_SECONDS)
+        logging.debug(f"Waiting {WAIT_BETWEEN_LAUNCHES_IN_SECONDS} seconds before next run")
+        time.sleep(WAIT_BETWEEN_LAUNCHES_IN_SECONDS)
 
 
 if __name__ == "__main__":
